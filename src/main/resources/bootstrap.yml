@@ -1,0 +1,23 @@
+server:
+  port: 8012
+spring:
+  application:
+    name: conhub-concert-service
+  cloud:
+    config:
+      enabled: false
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: concert
+eureka:
+  client:
+    enabled: true
+    register-with-eureka: true
+    registryFetchIntervalSeconds: 5
+    should-enforce-registration-at-init: true
+    service-url:
+      defaultZone: http://${EUREKA_SERVER_HOST:localhost}:8761/eureka
+  instance:
+    leaseRenewalIntervalInSeconds: 10
