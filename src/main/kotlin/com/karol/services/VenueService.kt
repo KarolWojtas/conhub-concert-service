@@ -15,7 +15,10 @@ interface VenueService {
     @Autowired lateinit var venueRepository: VenueRepository
 
     override fun findByName(name: String) = venueRepository.findByName(name)
-            .doOnEach { if(!it.hasValue()) throw ResponseStatusException(HttpStatus.BAD_REQUEST,"Venue not found") }
+            .switchIfEmpty(Mono.error(ResponseStatusException(HttpStatus.NOT_FOUND,"Venue not found")))
 
+    constructor(venueRepository: VenueRepository){
+        this.venueRepository = venueRepository
+    }
 
 }

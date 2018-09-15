@@ -3,6 +3,9 @@ package com.karol.repositories
 
 import com.karol.domain.Concert
 import com.karol.domain.Venue
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.mongodb.core.query.TextCriteria
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -10,6 +13,8 @@ import reactor.core.publisher.Mono
 interface ConcertRepository : ReactiveMongoRepository<Concert, String>{
     fun findByName(name: String): Mono<Concert>
     fun findAllByVenueId(venueId: String): Flux<Concert>
+    fun findAllByNameLikeIgnoreCase(name: String, pageable: Pageable): Flux<Concert>
+
 }
 
 interface VenueRepository : ReactiveMongoRepository<Venue, String>{

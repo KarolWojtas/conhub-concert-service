@@ -30,10 +30,12 @@ class Bootstrap : CommandLineRunner{
 
             val ucho = Venue(id = null, name = "Ucho")
             val concert1 = Concert(id = null, venue = ucho, name = "Disco w remizie")
-            val concert2 = Concert(id = null, venue = ucho, name = "Rap impra stulecia")
+            val concert2 = Concert(id = null, venue = ucho, name = "1 Rap impra stulecia")
+            val concert3 = Concert(id = null, venue = ucho, name = "2 Rap impra stulecia")
+            val concert4 = Concert(id = null, venue = ucho, name = "3 Rap impra stulecia")
 
             venueRepository.save(ucho).block()
-            concertRepository.saveAll(Flux.just(concert1, concert2)).blockLast()
+            concertRepository.saveAll(Flux.just(concert1, concert2, concert3, concert4)).blockLast()
 
 
         }
