@@ -11,6 +11,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
+import java.util.*
 
 @SpringBootApplication
 class ConhubConcertServiceApplication
@@ -29,13 +33,15 @@ class Bootstrap : CommandLineRunner{
             concertRepository.deleteAll().block()
 
             val ucho = Venue(id = null, name = "Ucho")
-            val concert1 = Concert(id = null, venue = ucho, name = "Disco w remizie")
-            val concert2 = Concert(id = null, venue = ucho, name = "1 Rap impra stulecia")
-            val concert3 = Concert(id = null, venue = ucho, name = "2 Rap impra stulecia")
-            val concert4 = Concert(id = null, venue = ucho, name = "3 Rap impra stulecia")
+            val bc = Venue(id = null, name = "Blues Club")
+            val concert1 = Concert(id = null, venue = ucho, name = "Disco w remizie", date = LocalDateTime.now(), comments = null)
+            val concert2 = Concert(id = null, venue = ucho, name = "1 Rap impra stulecia", date = LocalDateTime.now(), comments = null)
+            val concert3 = Concert(id = null, venue = ucho, name = "2 Rap impra stulecia", date = LocalDateTime.now(), comments = null)
+            val concert4 = Concert(id = null, venue = ucho, name = "3 Rap impra stulecia", date = LocalDateTime.now(), comments = null)
+        val concert5 = Concert(id = null, venue = bc, name = "4 Rap impra stulecia", date = LocalDateTime.now(), comments = null)
 
-            venueRepository.save(ucho).block()
-            concertRepository.saveAll(Flux.just(concert1, concert2, concert3, concert4)).blockLast()
+            venueRepository.saveAll(Flux.just(ucho,bc)).blockLast()
+            concertRepository.saveAll(Flux.just(concert1, concert2, concert3, concert4, concert5)).blockLast()
 
 
         }

@@ -19,6 +19,7 @@ interface ConcertService {
     fun findByName(name: String): Mono<Concert>
     fun findAllByVenueId(venueId: String): Flux<Concert>
     fun findByNameLike(name: String, by: String?, direction: String?, size: Int?, page: Int?): Flux<Concert>
+    fun findAll(name: String?, by: String?, direction: String?): Flux<Concert>
 }
 
 @Service
@@ -27,7 +28,7 @@ class ConcertServiceImpl: ConcertService{
         val sortDirection = if(direction?:"asc" == "desc") Sort.Direction.DESC else Sort.Direction.ASC
         val sortObject = Sort.by(sortDirection, by?:"name")
         return concertRepository.findAllByNameLikeIgnoreCase(name = name, pageable = PageRequest.of(page?:0, size?:5, sortObject))
-                .switchIfEmpty(Mono.error(ResponseStatusException(HttpStatus.NOT_FOUND)))
+
     }
     override fun findByName(name: String): Mono<Concert> = concertRepository.findByName(name)
 
@@ -35,7 +36,12 @@ class ConcertServiceImpl: ConcertService{
 
     override fun findById(id: String): Mono<Concert> = concertRepository.findById(id)
 
-
+    override fun findAll(name: String?, by: String?, direction: String?): Flux<Concert> {
+        val sortDirection = if(direction?:"asc" == "desc") Sort.Direction.DESC else Sort.Direction.ASC
+        val sortObject = Sort.by(sortDirection, by?:"name")
+        return if(name != null) concertRepository.findAllByNameLikeIgnoreCase(name = name, sort = sortObject )
+        else concertRepository.findAll(sortObject)
+    }
 
     @Autowired lateinit var concertRepository: ConcertRepository
 

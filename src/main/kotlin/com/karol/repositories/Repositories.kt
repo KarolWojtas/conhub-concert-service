@@ -14,7 +14,7 @@ interface ConcertRepository : ReactiveMongoRepository<Concert, String>{
     fun findByName(name: String): Mono<Concert>
     fun findAllByVenueId(venueId: String): Flux<Concert>
     fun findAllByNameLikeIgnoreCase(name: String, pageable: Pageable): Flux<Concert>
-
+    fun findAllByNameLikeIgnoreCase(name: String, sort: Sort): Flux<Concert>
 }
 
 interface VenueRepository : ReactiveMongoRepository<Venue, String>{

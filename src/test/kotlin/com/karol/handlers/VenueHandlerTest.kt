@@ -19,6 +19,8 @@ import org.springframework.mock.web.reactive.function.server.MockServerRequest
 import reactor.core.publisher.Flux
 import reactor.core.publisher.toMono
 import reactor.test.StepVerifier
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 
 class VenueHandlerUnitTest{
@@ -26,8 +28,8 @@ class VenueHandlerUnitTest{
     @Mock lateinit var concertService: ConcertService
     @InjectMocks lateinit var venueHandler: VenueHandler
     val venue = Venue(id = "idVenue", name = "Venue")
-    val concert1 = Concert(id = "id1", name = "Concert", venue = venue)
-    val concert2 = Concert(id = "id2", name = "Concert2", venue = venue)
+    val concert1 = Concert(id = "id1", name = "Concert", venue = venue, date = LocalDateTime.now(), comments = null)
+    val concert2 = Concert(id = "id2", name = "Concert2", venue = venue, date = LocalDateTime.now(), comments = null)
     @BeforeEach
     fun beforeEach() = MockitoAnnotations.initMocks(this)
 

@@ -8,61 +8,22 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.function.Executable
-import org.mockito.ArgumentMatchers
-import org.mockito.ArgumentMatchers.*
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.MockitoAnnotations
-import org.springframework.beans.factory.annotation.Autowired
+import org.mockito.*
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.data.domain.Sort
-import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
-import java.util.stream.Stream
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 
 @ExtendWith(SpringExtension::class)
 @DataMongoTest
-
 class ConcertServiceIntTest{
-    @Autowired lateinit var mongo : MongoTemplate
-    @Autowired lateinit var concertRepository: ConcertRepository
-    lateinit var concertService: ConcertService
-    val venue = Venue(name="venue")
-    val concert1 = Concert(name = "concert 1 in the jungle", venue = venue)
-    val concert2 = Concert(name = "concert 2 in the jungle", venue = venue)
-    val concert3 = Concert(name = "concert 3 in the jungle", venue = venue)
-
-    @BeforeEach
-    fun setUp(){
-        concertService = ConcertServiceImpl(concertRepository)
-        mongo.save(venue)
-        mongo.save(concert1)
-        mongo.save(concert2)
-        mongo.save(concert3)
-    }
 
 
-    @TestFactory
-    fun `should find concert by regex dynamic`(): Stream<DynamicTest> =
-            Stream.of("cert", "con", "e jun").map { DynamicTest.dynamicTest("test for $it"){
-                val concertList: List<Concert>? = concertService.findByNameLike(name = it, by = "name", direction = "desc", size = 3, page = 0)?.collectList().block()
-
-                assertNotNull(concertList)
-                if (concertList != null){
-                    assertEquals(3, concertList.size)
-                }
-            } }
-    @Test
-    fun `should use default values if null`(){
-        val concertList = concertService.findByNameLike("con", "name", "desc", null,null).collectList().block()
-        if(concertList!=null){
-            assert(concertList.size > 0)
-        }
-    }
 }
 
 
@@ -71,8 +32,10 @@ class ConcertServiceUnitTest{
     @Mock lateinit var concertRepository: ConcertRepository
     @InjectMocks lateinit var concertService: ConcertServiceImpl
     val venue = Venue(id = "idVenue", name = "Venue")
-    val concert1 = Concert(id = "id1", name = "Concert", venue = venue)
-    val concert2 = Concert(id = "id2", name = "Concert2", venue = venue)
+    val venue2 = Venue(id = "idVenue2", name = "venue2")
+    val concert1 = Concert(id = "id1", name = "Concert", venue = venue, date = LocalDateTime.now(), comments = null)
+    val concert2 = Concert(id = "id2", name = "Concert2", venue = venue, date = LocalDateTime.now(), comments = null)
+    val concert3 = Concert(id = "id3", name = "Concert3", venue = venue2, date = LocalDateTime.now(), comments = null)
 
     @BeforeEach
     fun setUp(){
@@ -116,6 +79,27 @@ class ConcertServiceUnitTest{
         concertService.findById("id").block().also {
             assertEquals(concert1, it)
         }
+    }
+    @Test
+    fun `should find concerts with name query specified`(){
+        given(concertRepository.findAllByNameLikeIgnoreCase(ArgumentMatchers.anyString(), ArgumentMatchers.any(Sort::class.java)?: Sort.by("name")))
+                .willReturn(Flux.just(concert1,concert2,concert3))
+
+        val concertList = concertService.findAll(name = "con", by = "name", direction = "asc" )
+
+        assertNotNull(concertList)
+        Mockito.verify(concertRepository, Mockito.times(1)).findAllByNameLikeIgnoreCase(ArgumentMatchers.anyString(),
+                ArgumentMatchers.any(Sort::class.java)?: Sort.by("name"))
+    }
+    @Test
+    fun `should find all concerts if name query is null`(){
+        given(concertRepository.findAll( ArgumentMatchers.any(Sort::class.java)?: Sort.by("name")))
+                .willReturn(Flux.just(concert1,concert2,concert3))
+
+        val concertList = concertService.findAll(by = "name", direction = "asc", name = null )
+
+        assertNotNull(concertList)
+        Mockito.verify(concertRepository, Mockito.times(1)).findAll(ArgumentMatchers.any(Sort::class.java)?: Sort.by("name"))
     }
 
 

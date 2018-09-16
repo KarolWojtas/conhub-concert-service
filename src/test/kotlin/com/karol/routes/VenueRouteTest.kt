@@ -29,6 +29,8 @@ import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.body
 import reactor.core.publisher.Flux
 import reactor.core.publisher.toMono
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 
 @WebFluxTest
@@ -42,8 +44,8 @@ class VenueRouteTest{
     lateinit var concertHandler: ConcertHandler
 
     val venue = Venue(id = "idVenue", name = "Venue")
-    val concert1 = Concert(id = "id1", name = "Concert", venue = venue)
-    val concert2 = Concert(id = "id2", name = "Concert2", venue = venue)
+    val concert1 = Concert(id = "id1", name = "Concert", venue = venue, date = LocalDateTime.now(), comments = null)
+    val concert2 = Concert(id = "id2", name = "Concert2", venue = venue, date = LocalDateTime.now(), comments = null)
 
     @Test
     fun `dependencies injected`() {
