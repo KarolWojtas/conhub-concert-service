@@ -2,6 +2,7 @@ package com.karol.repositories
 
 
 import com.karol.domain.Concert
+import com.karol.domain.ConcertComment
 import com.karol.domain.Venue
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -19,4 +20,7 @@ interface ConcertRepository : ReactiveMongoRepository<Concert, String>{
 
 interface VenueRepository : ReactiveMongoRepository<Venue, String>{
     fun findByName(name: String): Mono<Venue>
+}
+interface ConcertCommentRepository : ReactiveMongoRepository<ConcertComment, String>{
+    fun findAllByConcertId(concertId: String, sort: Sort): Flux<ConcertComment>
 }

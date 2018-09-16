@@ -1,5 +1,6 @@
 package com.karol
 
+import com.karol.handlers.ConcertCommentHandler
 import com.karol.handlers.ConcertHandler
 import com.karol.handlers.VenueHandler
 import org.springframework.context.annotation.Bean
@@ -11,20 +12,27 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Configuration
-class RouterConfig{
+class ConcertVenueRouterConfig{
     @Bean
     fun venueRoutes(venueHandler: VenueHandler): RouterFunction<ServerResponse> = router {
         "/venues".nest {
+            GET(""){venueHandler.findAllResponse()}
             "/{venueName}".nest {
                 GET("/concerts"){venueHandler.findConcertsByVenueName(it.pathVariable("venueName"))}
             }
         }
     }
     @Bean
-    fun concertRoutes(concertHandler: ConcertHandler): RouterFunction<ServerResponse> = router {
+    fun concertRoutes(concertHandler: ConcertHandler, concertCommentHandler: ConcertCommentHandler): RouterFunction<ServerResponse> = router {
         "/concerts".nest {
             GET(""){ findConcertsBySearchParams(it, concertHandler)}
             GET("/query/{query}"){findConcertsByNameLike(it, concertHandler)}
+            "/{concertId}".nest {
+                "/comments".nest {
+                    GET("", concertCommentHandler::findAllByConcertIdResponse)
+                    POST("/{username}", concertCommentHandler::saveCommentDtoResponse)
+                }
+            }
             }
         }
 
@@ -54,5 +62,6 @@ class RouterConfig{
 
 
     }
+
 
 

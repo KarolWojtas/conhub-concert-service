@@ -28,8 +28,8 @@ class VenueHandlerUnitTest{
     @Mock lateinit var concertService: ConcertService
     @InjectMocks lateinit var venueHandler: VenueHandler
     val venue = Venue(id = "idVenue", name = "Venue")
-    val concert1 = Concert(id = "id1", name = "Concert", venue = venue, date = LocalDateTime.now(), comments = null)
-    val concert2 = Concert(id = "id2", name = "Concert2", venue = venue, date = LocalDateTime.now(), comments = null)
+    val concert1 = Concert(id = "id1", name = "Concert", venue = venue, date = LocalDateTime.now())
+    val concert2 = Concert(id = "id2", name = "Concert2", venue = venue, date = LocalDateTime.now())
     @BeforeEach
     fun beforeEach() = MockitoAnnotations.initMocks(this)
 
@@ -49,6 +49,11 @@ class VenueHandlerUnitTest{
         venueHandler.findConcertsByVenueName("Venue").block().also {
             assertEquals(HttpStatus.OK, it?.statusCode())
         }
+    }
+    @Test
+    fun `should find all venues`(){
+        given(venueService.findAll()).willReturn(Flux.just(venue))
+        venueHandler.findAllResponse().block().also { assertEquals(HttpStatus.OK, it?.statusCode()) }
     }
 
 

@@ -13,13 +13,16 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.springframework.web.server.ResponseStatusException
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
+import reactor.test.StepVerifier
 
 class VenueServiceUnitTest{
     @Mock lateinit var venueRepository: VenueRepository
     @InjectMocks lateinit var venueService: VenueServiceImpl
     val venue1 = Venue(id="id1", name = "Venue1")
+    val venue2 = Venue(id = "id2", name = "Venue2")
     @BeforeEach
     fun beforeEach(){
         MockitoAnnotations.initMocks(this)
@@ -41,5 +44,13 @@ class VenueServiceUnitTest{
         given(venueRepository.findByName(anyString())).willReturn(Mono.empty())
 
         assertThrows(ResponseStatusException::class.java) { venueService.findByName("Venue").block() }
+    }
+    @Test
+    fun `should list all venues`(){
+        given(venueRepository.findAll()).willReturn(Flux.just(venue1,venue2))
+
+        StepVerifier.create(venueService.findAll())
+                .expectNext(venue1, venue2)
+                .verifyComplete()
     }
 }

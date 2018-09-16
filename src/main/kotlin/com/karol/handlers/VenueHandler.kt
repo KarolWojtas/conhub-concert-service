@@ -18,5 +18,5 @@ class VenueHandler {
     fun concertsByVenueNameFlux(venueName: String) = venueService.findByName(venueName)
             .flatMapMany { concertService.findAllByVenueId(it?.id?: "")}
 
-
+    fun findAllResponse() = ServerResponse.ok().body(venueService.findAll())
 }

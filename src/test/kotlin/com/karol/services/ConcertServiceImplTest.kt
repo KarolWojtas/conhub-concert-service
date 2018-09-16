@@ -33,9 +33,9 @@ class ConcertServiceUnitTest{
     @InjectMocks lateinit var concertService: ConcertServiceImpl
     val venue = Venue(id = "idVenue", name = "Venue")
     val venue2 = Venue(id = "idVenue2", name = "venue2")
-    val concert1 = Concert(id = "id1", name = "Concert", venue = venue, date = LocalDateTime.now(), comments = null)
-    val concert2 = Concert(id = "id2", name = "Concert2", venue = venue, date = LocalDateTime.now(), comments = null)
-    val concert3 = Concert(id = "id3", name = "Concert3", venue = venue2, date = LocalDateTime.now(), comments = null)
+    val concert1 = Concert(id = "id1", name = "Concert", venue = venue, date = LocalDateTime.now())
+    val concert2 = Concert(id = "id2", name = "Concert2", venue = venue, date = LocalDateTime.now())
+    val concert3 = Concert(id = "id3", name = "Concert3", venue = venue2, date = LocalDateTime.now())
 
     @BeforeEach
     fun setUp(){

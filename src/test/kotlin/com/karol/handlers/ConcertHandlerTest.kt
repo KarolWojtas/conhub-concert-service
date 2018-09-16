@@ -29,10 +29,10 @@ class ConcertHandlerTest{
     @InjectMocks lateinit var concertHandler: ConcertHandler
     val venue = Venue(id = "idVenue", name = "Venue")
     val venue2 = Venue(id = "idVenue2", name = "Venue2")
-    val concert1 = Concert(id = "id1", name = "Concert", venue = venue, date = LocalDateTime.now().plusDays(2L), comments = null)
-    val concert2 = Concert(id = "id2", name = "Concert2", venue = venue, date = LocalDateTime.now().plusDays(5L), comments = null)
-    val concert3 = Concert(id = "idVenue3", name = "Concert3", venue = venue2, date = LocalDateTime.now().plusDays(3L), comments = null)
-    val concert4 = Concert(id = "idVenue4", name = "Concert4", venue = venue2, date = LocalDateTime.now().minusDays(3L), comments = null)
+    val concert1 = Concert(id = "id1", name = "Concert", venue = venue, date = LocalDateTime.now().plusDays(2L))
+    val concert2 = Concert(id = "id2", name = "Concert2", venue = venue, date = LocalDateTime.now().plusDays(5L))
+    val concert3 = Concert(id = "idVenue3", name = "Concert3", venue = venue2, date = LocalDateTime.now().plusDays(3L))
+    val concert4 = Concert(id = "idVenue4", name = "Concert4", venue = venue2, date = LocalDateTime.now().minusDays(3L))
     val allConcerts = listOf(concert1, concert2, concert3, concert4)
     @BeforeEach
     fun beforeEach() = MockitoAnnotations.initMocks(this)
