@@ -1,17 +1,16 @@
 package com.karol.handlers
 
 import com.karol.domain.Concert
+import com.karol.domain.ConcertDto
 import com.karol.domain.Venue
 import com.karol.services.ConcertService
+import com.karol.services.VenueService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers
+import org.mockito.*
 import org.mockito.ArgumentMatchers.*
 import org.mockito.BDDMockito.*
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.MockitoAnnotations
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.mock.web.reactive.function.server.MockServerRequest
@@ -19,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
+import reactor.core.publisher.toMono
 import reactor.test.StepVerifier
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
@@ -26,14 +26,16 @@ import java.time.ZonedDateTime
 class ConcertHandlerTest{
 
     @Mock lateinit var concertService: ConcertService
+    @Mock lateinit var venueService: VenueService
     @InjectMocks lateinit var concertHandler: ConcertHandler
-    val venue = Venue(id = "idVenue", name = "Venue")
-    val venue2 = Venue(id = "idVenue2", name = "Venue2")
+    val venue = Venue(id = "idVenue", name = "Venue", avatar = null)
+    val venue2 = Venue(id = "idVenue2", name = "Venue2", avatar = null)
     val concert1 = Concert(id = "id1", name = "Concert", venue = venue, date = LocalDateTime.now().plusDays(2L))
     val concert2 = Concert(id = "id2", name = "Concert2", venue = venue, date = LocalDateTime.now().plusDays(5L))
     val concert3 = Concert(id = "idVenue3", name = "Concert3", venue = venue2, date = LocalDateTime.now().plusDays(3L))
     val concert4 = Concert(id = "idVenue4", name = "Concert4", venue = venue2, date = LocalDateTime.now().minusDays(3L))
     val allConcerts = listOf(concert1, concert2, concert3, concert4)
+
     @BeforeEach
     fun beforeEach() = MockitoAnnotations.initMocks(this)
 
@@ -110,6 +112,36 @@ class ConcertHandlerTest{
                 .expectError(ResponseStatusException::class.java)
                 .verify()
 
+    }
+    @Test
+    fun `should find by id`(){
+        given(concertService.findById(anyString())).willReturn(concert1.toMono())
+        val mockRequest = MockServerRequest.builder().pathVariable("concertId", "idC").build()
+
+        concertHandler.findByIdResponse(mockRequest).block().also {
+            assertEquals(HttpStatus.OK, it?.statusCode())
+        }
+    }
+    @Test   fun `should patch by id`(){
+        val concertDto = ConcertDto(name = "name", date = LocalDateTime.now())
+        given(concertService.patchById(anyString(), any(ConcertDto::class.java)?:concertDto, any(Venue::class.java)?:venue)).willReturn(concert2.toMono())
+        given(venueService.findById(anyString())).willReturn(venue.toMono())
+        val mockRequest = MockServerRequest.builder().pathVariable("concertId", "idC").body(concertDto.toMono())
+
+        StepVerifier.create(concertHandler.patchConcertMono(concertDto = concertDto.toMono(), concertId = "idC", venueId = "idV"))
+                .expectNext(concert2).verifyComplete()
+        concertHandler.patchByIdResponse(mockRequest).block().also {
+            assertEquals(HttpStatus.ACCEPTED, it?.statusCode())
+        }
+    }
+    @Test
+    fun `should delete by id`(){
+        given(concertService.deleteById(anyString())).willReturn(Mono.empty())
+        val mockRequest = MockServerRequest.builder().pathVariable("concertId", "idC").build()
+
+        concertHandler.deleteByIdResponse(mockRequest).block().also {
+            assertEquals(HttpStatus.ACCEPTED, it?.statusCode())
+        }
     }
 
 }

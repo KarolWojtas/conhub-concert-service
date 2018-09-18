@@ -34,8 +34,8 @@ class Bootstrap : CommandLineRunner{
         venueRepository.deleteAll().block()
         concertRepository.deleteAll().block()
 
-        val ucho = Venue(id = null, name = "Ucho")
-        val bc = Venue(id = null, name = "Blues Club")
+        val ucho = Venue(id = null, name = "Ucho", avatar = null)
+        val bc = Venue(id = null, name = "Blues Club", avatar = null)
         val concert1 = Concert(id = null, venue = ucho, name = "Disco w remizie", date = LocalDateTime.now())
         val concert2 = Concert(id = null, venue = ucho, name = "1 Rap impra stulecia", date = LocalDateTime.now())
         val concert3 = Concert(id = null, venue = ucho, name = "2 Rap impra stulecia", date = LocalDateTime.now())

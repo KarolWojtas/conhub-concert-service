@@ -1,6 +1,7 @@
 package com.karol.services
 
 import com.karol.domain.Concert
+import com.karol.domain.ConcertDto
 import com.karol.domain.Venue
 import com.karol.repositories.ConcertRepository
 import org.junit.jupiter.api.*
@@ -15,6 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
+import reactor.test.StepVerifier
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
@@ -31,8 +33,8 @@ class ConcertServiceIntTest{
 class ConcertServiceUnitTest{
     @Mock lateinit var concertRepository: ConcertRepository
     @InjectMocks lateinit var concertService: ConcertServiceImpl
-    val venue = Venue(id = "idVenue", name = "Venue")
-    val venue2 = Venue(id = "idVenue2", name = "venue2")
+    val venue = Venue(id = "idVenue", name = "Venue", avatar = null)
+    val venue2 = Venue(id = "idVenue2", name = "venue2", avatar = null)
     val concert1 = Concert(id = "id1", name = "Concert", venue = venue, date = LocalDateTime.now())
     val concert2 = Concert(id = "id2", name = "Concert2", venue = venue, date = LocalDateTime.now())
     val concert3 = Concert(id = "id3", name = "Concert3", venue = venue2, date = LocalDateTime.now())
@@ -101,6 +103,33 @@ class ConcertServiceUnitTest{
         assertNotNull(concertList)
         Mockito.verify(concertRepository, Mockito.times(1)).findAll(ArgumentMatchers.any(Sort::class.java)?: Sort.by("name"))
     }
+    @Test
+    fun `should find by id`(){
+        given(concertRepository.findById(anyString())).willReturn(concert1.toMono())
+
+        concertService.findById(id = "idC").block().also {
+            assertEquals(concert1.name, it?.name)
+        }
+    }
+    @Test
+    fun `should patch by id`(){
+        val concertDto = ConcertDto(name = "name", date = LocalDateTime.now())
+        given(concertRepository.findById(anyString())).willReturn(concert1.toMono())
+        given(concertRepository.save(any(Concert::class.java)?:concert1)).willReturn(concert2.toMono())
+
+        StepVerifier.create(concertService.patchById(concertId = "idC", concertDto = concertDto, venue = venue2 ))
+                .expectNext(concert2)
+                .verifyComplete()
+    }
+   @Test
+    fun `should delete by id`(){
+       given(concertRepository.findById(anyString())).willReturn(concert1.toMono())
+       given(concertRepository.deleteById(anyString())).willReturn(Mono.empty())
+
+       concertService.deleteById(concertId = "idC")
+
+   }
+
 
 
 }

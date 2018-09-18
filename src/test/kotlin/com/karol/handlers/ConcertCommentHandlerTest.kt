@@ -1,8 +1,6 @@
 package com.karol.handlers
 
-import com.karol.domain.Concert
-import com.karol.domain.ConcertComment
-import com.karol.domain.Venue
+import com.karol.domain.*
 import com.karol.services.ConcertCommentService
 import com.karol.services.ConcertService
 import org.junit.jupiter.api.Assertions.*
@@ -15,6 +13,7 @@ import org.mockito.BDDMockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.mock.web.reactive.function.server.MockServerRequest
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.server.ServerResponse
@@ -22,6 +21,7 @@ import org.springframework.web.reactive.function.server.body
 import org.springframework.web.server.ResponseStatusException
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.publisher.toMono
 import reactor.test.StepVerifier
 import java.net.URI
 import java.time.LocalDateTime
@@ -32,10 +32,10 @@ class ConcertCommentHandlerTest{
     @Mock
     lateinit var concertCommentService: ConcertCommentService
     @Mock
-    lateinit var webClientBuilder: WebClient.Builder
+    lateinit var webClientService: WebClientService
     @InjectMocks
     lateinit var concertCommentHandler: ConcertCommentHandler
-    val concert1 = Concert(id = "idC", name = "concert1", date = LocalDateTime.now().plusDays(1L), venue = Venue(id = "idV", name = "Venue"))
+    val concert1 = Concert(id = "idC", name = "concert1", date = LocalDateTime.now().plusDays(1L), venue = Venue(id = "idV", name = "Venue", avatar = null))
     val comment1 = ConcertComment(id = "idCom", timestamp = LocalDateTime.now(), concert = concert1, text = "text", username = "username")
     val comment2 = ConcertComment(id = "idCom2", timestamp = LocalDateTime.now(), concert = concert1, text = "text2", username = "username")
     @BeforeEach
@@ -80,7 +80,23 @@ class ConcertCommentHandlerTest{
     }
     @Test
     fun `should save comment`(){
-        given(concertService)
+        val commentDto = ConcertCommentDto(text = "text", timestamp = LocalDateTime.now())
+        val savedConcertComment = ConcertComment(id = "id", username = "user", concert = concert1, timestamp = LocalDateTime.now(), text = "text")
+
+        given(concertService.findById(anyString())).willReturn(concert1.toMono())
+        given(concertCommentService.saveComment(any(ConcertComment::class.java)?:savedConcertComment)).willReturn(savedConcertComment.toMono())
+        given(webClientService.checkUsernameAsync(anyString())).willReturn(true.toMono())
+
+        StepVerifier.create(concertCommentHandler.saveCommentMono(comment = commentDto.toMono(), username = "u", concertId = "idC"))
+                .expectNext(savedConcertComment)
+                .verifyComplete()
+
+        val mockRequest = MockServerRequest.builder().pathVariable("username", "username").pathVariable("concertId", "idC")
+                .body(commentDto.toMono())
+        concertCommentHandler.saveCommentDtoResponse(mockRequest).block().also {
+            assertEquals(HttpStatus.OK, it?.statusCode())
+        }
+
     }
 
 

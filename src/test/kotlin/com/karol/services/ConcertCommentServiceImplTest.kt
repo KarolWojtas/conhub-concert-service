@@ -23,7 +23,7 @@ class ConcertCommentServiceImplTest{
     lateinit var concertCommentRepository: ConcertCommentRepository
     @InjectMocks
     lateinit var concertCommentService: ConcertCommentServiceImpl
-    val concert1 = Concert(id = "idC", name = "concert1", date = LocalDateTime.now().plusDays(1L), venue = Venue(id = "idV", name = "Venue"))
+    val concert1 = Concert(id = "idC", name = "concert1", date = LocalDateTime.now().plusDays(1L), venue = Venue(id = "idV", name = "Venue", avatar = null))
     val comment1 = ConcertComment(id = "idCom", timestamp = LocalDateTime.now(), concert = concert1, text = "text", username = "username")
     val comment2 = ConcertComment(id = "idCom2", timestamp = LocalDateTime.now(), concert = concert1, text = "text2", username = "username")
     @BeforeEach

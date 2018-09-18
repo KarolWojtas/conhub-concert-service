@@ -17,15 +17,22 @@ import java.time.ZoneId
         @JsonSerialize(using = VenueNameSerializer::class) @DBRef val venue: Venue,
         val date: LocalDateTime
 )
+data class ConcertDto(val name: String?, val date: LocalDateTime? )
 
 @Document data class Venue(@Id val id: String? = null,
-                           val name: String)
+                           val name: String, val avatar: ByteArray?)
+
+data class VenueDto(val name: String?, val avatar: ByteArray?)
+
 data class UserDetails(val id: Long, val username: String)
 
 @Document data class ConcertComment(@Id val id: String? = null, val text: String, val username: String,
                                     @JsonSerialize(using = ConcertMinimalSerializer::class) @DBRef val concert: Concert, val timestamp: LocalDateTime)
 data class ConcertCommentDto(val text: String, val timestamp: LocalDateTime?)
 
+@Document data class Interest(@Id val id: String?, val concertId: String, val username: String )
+
+data class InterestDto(val concertId: String)
 class VenueNameSerializer : StdSerializer<Venue>(Venue::class.java){
     override fun serialize(venue: Venue?, jgen: JsonGenerator?, p2: SerializerProvider?) {
         jgen?.apply {

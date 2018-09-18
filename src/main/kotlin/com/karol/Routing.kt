@@ -2,6 +2,7 @@ package com.karol
 
 import com.karol.handlers.ConcertCommentHandler
 import com.karol.handlers.ConcertHandler
+import com.karol.handlers.InterestHandler
 import com.karol.handlers.VenueHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -17,8 +18,10 @@ class ConcertVenueRouterConfig{
     fun venueRoutes(venueHandler: VenueHandler): RouterFunction<ServerResponse> = router {
         "/venues".nest {
             GET(""){venueHandler.findAllResponse()}
-            "/{venueName}".nest {
-                GET("/concerts"){venueHandler.findConcertsByVenueName(it.pathVariable("venueName"))}
+            "/{venueId}".nest {
+                GET("", venueHandler::findById)
+                PATCH("", venueHandler::patchById)
+                DELETE("", venueHandler::deleteById)
             }
         }
     }
@@ -28,6 +31,9 @@ class ConcertVenueRouterConfig{
             GET(""){ findConcertsBySearchParams(it, concertHandler)}
             GET("/query/{query}"){findConcertsByNameLike(it, concertHandler)}
             "/{concertId}".nest {
+                GET("", concertHandler::findByIdResponse)
+                PATCH("", concertHandler::patchByIdResponse)
+                DELETE("", concertHandler::deleteByIdResponse)
                 "/comments".nest {
                     GET("", concertCommentHandler::findAllByConcertIdResponse)
                     POST("/{username}", concertCommentHandler::saveCommentDtoResponse)
@@ -35,6 +41,14 @@ class ConcertVenueRouterConfig{
             }
             }
         }
+    @Bean
+    fun interestRoutes(interestHandler: InterestHandler): RouterFunction<ServerResponse> = router {
+        "/interests/{username}".nest {
+            GET("", interestHandler::findConcertsByUsernameIntrestsResponse)
+            POST("", interestHandler::postInterestResponse)
+            DELETE("", interestHandler::deleteInterestResponse)
+        }
+    }
 
     fun findConcertsByNameLike(request: ServerRequest, concertHandler: ConcertHandler):Mono<ServerResponse> =
             with(request){
