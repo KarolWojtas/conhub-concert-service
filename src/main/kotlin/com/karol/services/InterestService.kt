@@ -14,7 +14,6 @@ interface InterestService{
     fun deleteById(interestId: String): Mono<Void>
     fun deleteByUsernameAndConcertId(concertId: String, username: String): Mono<Void>
     fun findByUsernameAndConcertId(username: String, concertId: String): Mono<Interest>
-    fun interestDoesntExist(username: String, concertId: String): Mono<Boolean>
 }
 @Service
 class InterestServiceImpl: InterestService{
@@ -34,6 +33,4 @@ class InterestServiceImpl: InterestService{
 
     override fun findByUsernameAndConcertId(username: String, concertId: String) = interestRepository.findAllByUsernameAndConcertId(username = username, concertId = concertId)
 
-    override fun interestDoesntExist(username: String, concertId: String): Mono<Boolean>  = this.findByUsernameAndConcertId(username = username, concertId = concertId)
-            .map { it == null }
 }

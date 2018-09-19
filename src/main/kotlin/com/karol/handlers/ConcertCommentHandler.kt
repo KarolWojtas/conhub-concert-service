@@ -63,6 +63,11 @@ class ConcertCommentHandler{
                 .flatMap(concertCommentService::saveComment)
                 .switchIfEmpty(Mono.error(ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Save unsuccessful")))
     }
+    fun deleteCommentById(req: ServerRequest): Mono<ServerResponse> = ServerResponse.accepted().body(
+            concertCommentService.findById(req.pathVariable("commentId"))
+                    .filter { it.username == req.pathVariable("username") }
+                    .flatMap { concertCommentService.deleteCommentById(it.id?:"") }
+    )
 
 
 }

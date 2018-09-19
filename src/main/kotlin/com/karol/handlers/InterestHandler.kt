@@ -44,7 +44,6 @@ class InterestHandler{
     fun postInterestMono(interestDto: Mono<InterestDto>, username: String): Mono<Interest> = interestDto.flatMap { concertService.findById(it.concertId) }
             .switchIfEmpty(Mono.error(ResponseStatusException(HttpStatus.NOT_FOUND,"Concert not found")))
             .filterWhen { webClientService.checkUsernameAsync(username) }
-
             .map { Interest(id = null, username = username, concertId = it.id?:"null") }
             .filter { it.concertId != "null" }
             .flatMap { interestService.postInterest(it) }

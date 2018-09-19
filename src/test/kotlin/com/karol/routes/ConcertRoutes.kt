@@ -6,6 +6,7 @@ import com.karol.domain.ConcertDto
 import com.karol.domain.Venue
 import com.karol.handlers.ConcertCommentHandler
 import com.karol.handlers.ConcertHandler
+import com.karol.handlers.InterestHandler
 import com.karol.handlers.VenueHandler
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
@@ -44,6 +45,8 @@ class ConcertRoutesTest{
     lateinit var concertHandler: ConcertHandler
     @MockBean
     lateinit var concertCommentHandler: ConcertCommentHandler
+    @MockBean
+    lateinit var interestHandler: InterestHandler
 
     val venue = Venue(id = "idVenue", name = "Venue", avatar = null)
     val concert1 = Concert(id = "id1", name = "Concert", venue = venue, date = LocalDateTime.now())

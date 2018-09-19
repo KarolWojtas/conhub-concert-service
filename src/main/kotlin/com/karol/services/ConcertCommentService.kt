@@ -11,6 +11,8 @@ import reactor.core.publisher.Mono
 interface ConcertCommentService{
     fun findAllByConcertId(concertId: String, by: String?, direction: String?): Flux<ConcertComment>
     fun saveComment(comment: ConcertComment): Mono<ConcertComment>
+    fun deleteCommentById(commentId: String): Mono<Void>
+    fun findById(concertCOmmentId: String): Mono<ConcertComment>
 }
 @Service
 class ConcertCommentServiceImpl : ConcertCommentService{
@@ -23,5 +25,6 @@ class ConcertCommentServiceImpl : ConcertCommentService{
     }
 
     override fun saveComment(comment: ConcertComment): Mono<ConcertComment> = concertCommentRepository.save(comment)
-
+    override fun deleteCommentById(commentId: String): Mono<Void> = concertCommentRepository.deleteById(commentId)
+    override fun findById(concertCommentId: String): Mono<ConcertComment> = concertCommentRepository.findById(concertCommentId)
 }

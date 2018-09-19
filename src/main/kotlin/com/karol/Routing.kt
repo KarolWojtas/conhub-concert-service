@@ -7,6 +7,7 @@ import com.karol.handlers.VenueHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.domain.Sort
+import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.server.*
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
@@ -22,6 +23,10 @@ class ConcertVenueRouterConfig{
                 GET("", venueHandler::findById)
                 PATCH("", venueHandler::patchById)
                 DELETE("", venueHandler::deleteById)
+                "/avatar".nest {
+                    GET("", venueHandler::getVenueAvatarResponse)
+                    accept(MediaType.MULTIPART_FORM_DATA).and(POST("")).invoke { venueHandler.saveVenueAvatarResponse(it) }
+                }
             }
         }
     }
@@ -29,6 +34,7 @@ class ConcertVenueRouterConfig{
     fun concertRoutes(concertHandler: ConcertHandler, concertCommentHandler: ConcertCommentHandler): RouterFunction<ServerResponse> = router {
         "/concerts".nest {
             GET(""){ findConcertsBySearchParams(it, concertHandler)}
+            DELETE("/comments/{commentId}/{username}", concertCommentHandler::deleteCommentById)
             GET("/query/{query}"){findConcertsByNameLike(it, concertHandler)}
             "/{concertId}".nest {
                 GET("", concertHandler::findByIdResponse)

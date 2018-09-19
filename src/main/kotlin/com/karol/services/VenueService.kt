@@ -17,6 +17,7 @@ interface VenueService {
     fun findById(venueId: String): Mono<Venue>
     fun patchVenue(venueId: String, venueDto: VenueDto): Mono<Venue>
     fun deleteById(venueId: String): Mono<Void>
+    fun save(venue: Venue): Mono<Venue>
 }
 @Service class VenueServiceImpl: VenueService {
     @Autowired lateinit var venueRepository: VenueRepository
@@ -40,4 +41,5 @@ interface VenueService {
     override fun deleteById(venueId: String): Mono<Void> = venueRepository.deleteById(venueId)
             .onErrorMap { ResponseStatusException(HttpStatus.NOT_FOUND, "Venue not found") }
 
+    override fun save(venue: Venue) = venueRepository.save(venue)
 }

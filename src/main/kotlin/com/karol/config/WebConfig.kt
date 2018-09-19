@@ -9,14 +9,12 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.cloud.client.loadbalancer.LoadBalanced
 
-
-
-
 @EnableReactiveMongoRepositories
 class MongoConfig: AbstractReactiveMongoConfiguration(){
     override fun reactiveMongoClient(): MongoClient = MongoClients.create()
 
     override fun getDatabaseName(): String = "concert"
+
 }
 @Configuration
 class WebConfig{
