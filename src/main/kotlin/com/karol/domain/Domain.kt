@@ -44,6 +44,7 @@ class VenueNameSerializer : StdSerializer<Venue>(Venue::class.java){
     override fun serialize(venue: Venue?, jgen: JsonGenerator?, p2: SerializerProvider?) {
         jgen?.apply {
             writeStartObject()
+            writeStringField("id", venue?.id)
             writeStringField("name", venue?.name)
             writeEndObject()
         }

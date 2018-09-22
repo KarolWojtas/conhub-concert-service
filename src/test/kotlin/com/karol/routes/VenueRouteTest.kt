@@ -6,6 +6,7 @@ import com.karol.domain.Venue
 import com.karol.domain.VenueDto
 import com.karol.handlers.ConcertCommentHandler
 import com.karol.handlers.ConcertHandler
+import com.karol.handlers.InterestHandler
 import com.karol.handlers.VenueHandler
 import org.hamcrest.Matchers
 import org.junit.Assert
@@ -45,6 +46,8 @@ class VenueRouteTest{
     lateinit var concertHandler: ConcertHandler
     @MockBean
     lateinit var concertCommentHandler: ConcertCommentHandler
+    @MockBean
+    lateinit var interestHandler: InterestHandler
 
     val venue = Venue(id = "idVenue", name = "Venue", avatar = null)
     val concert1 = Concert(id = "id1", name = "Concert", venue = venue, date = LocalDateTime.now())
@@ -55,12 +58,6 @@ class VenueRouteTest{
         Assert.assertNotNull(venueHandler)
     }
 
-    @Test
-    fun `should GET concerts in venue`(){
-        given(venueHandler.findConcertsByVenueName(ArgumentMatchers.anyString())).willReturn(ServerResponse.ok().body( Flux.just(concert1,concert2)))
-
-        webclient.get().uri("/venues/{venueName}/concerts", "Venue").exchange().expectStatus().isOk
-    }
     @Test
     fun `should GET all venues`(){
         given(venueHandler.findAllResponse()).willReturn(ServerResponse.ok().body(Flux.just(venue)))

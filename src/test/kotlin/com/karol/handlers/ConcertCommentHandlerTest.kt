@@ -98,6 +98,16 @@ class ConcertCommentHandlerTest{
         }
 
     }
+    @Test
+    fun `should delete comment by comment id`(){
+        val mockRequest = MockServerRequest.builder().pathVariable("username","username").pathVariable("commentId", "commentId").build()
+        given(concertCommentService.deleteCommentById(anyString())).willReturn(Mono.empty())
+        given(concertCommentService.findById(ArgumentMatchers.anyString())).willReturn(comment1.toMono())
+
+        concertCommentHandler.deleteCommentById(mockRequest).block().also {
+            assertEquals(HttpStatus.ACCEPTED, it?.statusCode())
+        }
+    }
 
 
 }

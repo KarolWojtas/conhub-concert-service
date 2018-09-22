@@ -6,8 +6,11 @@ import com.karol.domain.VenueDto
 import com.karol.services.ConcertService
 import com.karol.services.VenueService
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIf
+import org.junit.jupiter.api.function.Executable
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.*
 import org.mockito.BDDMockito.*
@@ -16,13 +19,20 @@ import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
+import org.springframework.mock.web.MockMultipartFile
+import org.springframework.mock.web.MockMultipartHttpServletRequest
 import org.springframework.mock.web.reactive.function.server.MockServerRequest
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 import reactor.test.StepVerifier
+import java.io.File
+import java.io.InputStream
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.time.LocalDateTime
-import java.time.ZonedDateTime
+
 
 
 class VenueHandlerUnitTest{
@@ -85,6 +95,7 @@ class VenueHandlerUnitTest{
             assertEquals(HttpStatus.ACCEPTED, it?.statusCode() )
         }
     }
+
 
 
 }

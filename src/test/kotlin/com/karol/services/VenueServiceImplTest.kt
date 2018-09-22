@@ -85,8 +85,9 @@ class VenueServiceUnitTest{
     }
     @Test
     fun `should handle not found`(){
+        val emptyVenue = Venue(id=null, name = "null", avatar = null)
         given(venueRepository.findById(anyString())).willReturn(Mono.empty())
 
-        StepVerifier.create(venueService.findById("id")).expectNext(venue1).verifyComplete()
+        StepVerifier.create(venueService.findById("id")).expectNext(emptyVenue).verifyComplete()
     }
 }

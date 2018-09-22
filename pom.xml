@@ -27,6 +27,9 @@
         <junit-platform.version>1.1.0</junit-platform.version>
         <junit-jupiter.version>5.2.0</junit-jupiter.version>
         <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
+        <docker.image.prefix>karolwojtas</docker.image.prefix>
+        <docker.image.name>conhubconcertservice
+        </docker.image.name>
     </properties>
 
     <dependencies>
@@ -235,6 +238,36 @@
                     <dataFile>target/jacoco.exec</dataFile>
                     <!-- Sets the output directory for the code coverage report. -->
                     <outputDirectory>target/jacoco-ut</outputDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.20.0</version>
+
+                <configuration>
+
+                    <!--<dockerHost>http://127.0.0.1:2375</dockerHost> -->
+                    <dockerHost>unix:///var/run/docker.sock</dockerHost>
+                    <autoCreateCustomNetworks>true</autoCreateCustomNetworks>
+                    <verbose>true</verbose>
+                    <images>
+                        <image>
+                            <name>${docker.image.prefix}/${docker.image.name}</name>
+                            <build>
+                                <dockerFileDir>${project.basedir}/src/main/docker/</dockerFileDir>
+                                <!--copies artficact to docker build dir in target -->
+                                <assembly>
+                                    <descriptorRef>artifact</descriptorRef>
+                                </assembly>
+                                <tags>
+                                    <tag>latest</tag>
+                                    <tag>${project.version}</tag>
+                                </tags>
+
+                            </build>
+                        </image>
+                    </images>
                 </configuration>
             </plugin>
         </plugins>
