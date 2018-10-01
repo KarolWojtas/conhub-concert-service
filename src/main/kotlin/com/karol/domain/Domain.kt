@@ -13,7 +13,9 @@ import org.springframework.data.mongodb.core.mapping.Document
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-@Document data class Concert(
+@Document
+@CompoundIndex(unique = true,  name = "name_date", def = "{'name' : 1, 'date': 1}")
+data class Concert(
         @Id val id: String? = null,
         @TextIndexed val name: String,
         @JsonSerialize(using = VenueNameSerializer::class) @DBRef val venue: Venue,
@@ -34,7 +36,6 @@ data class ConcertComment(@Id val id: String? = null, val text: String, val user
                                     @JsonSerialize(using = ConcertMinimalSerializer::class) @DBRef val concert: Concert, val timestamp: LocalDateTime)
 data class ConcertCommentDto(val text: String, val timestamp: LocalDateTime?)
 
-//TODO: OGARNĄĆ CZY DZIAŁA INDEX
 @Document
 @CompoundIndex(unique = true,  name = "user_concert", def = "{'username' : 1, 'concertId': 1}")
 data class Interest(@Id val id: String?, val concertId: String, val username: String )

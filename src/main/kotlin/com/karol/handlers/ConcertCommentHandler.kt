@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.body
 import org.springframework.web.server.ResponseStatusException
+import reactor.core.publisher.EmitterProcessor
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
@@ -26,6 +27,7 @@ class ConcertCommentHandler{
     lateinit var webClientService: WebClientService
     val DEFAUTL_PAGE = 0L
     val DEFAULT_SIZE = 10L
+    val sseProcessor = EmitterProcessor.create<ConcertComment>()
 
     fun commentsByConcertFlux(page: Long?, size: Long?, by: String?, direction: String?, concertId: String): Flux<ConcertComment> =
         concertCommentService.findAllByConcertId(concertId= concertId, by = by, direction = direction)
@@ -61,6 +63,7 @@ class ConcertCommentHandler{
                 .zipWith(comment)
                 .map { ConcertComment(id = null, text = it.t2.text, timestamp = it.t2.timestamp?: LocalDateTime.now(), concert = it.t1, username = username) }
                 .flatMap(concertCommentService::saveComment)
+                .doOnNext { sseProcessor.onNext(it) }
                 .switchIfEmpty(Mono.error(ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Save unsuccessful")))
     }
     fun deleteCommentById(req: ServerRequest): Mono<ServerResponse> = ServerResponse.accepted().body(
@@ -68,6 +71,7 @@ class ConcertCommentHandler{
                     .filter { it.username == req.pathVariable("username") }
                     .flatMap { concertCommentService.deleteCommentById(it.id?:"") }
     )
+    fun commentsSseResponse(req: ServerRequest) = ServerResponse.ok().body(sseProcessor.share())
 
 
 }

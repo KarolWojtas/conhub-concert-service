@@ -56,7 +56,8 @@ class VenueHandler {
 
     fun bufferedImageFlux(venueId: String): Flux<DataBuffer> = venueService
             .findById(venueId)
-            .switchIfEmpty(Mono.empty())
+            .filter { it.avatar != null }
+            .switchIfEmpty(Mono.error(ResponseStatusException(HttpStatus.NOT_FOUND)))
             .map { it.avatar }
             .map { DefaultDataBufferFactory().wrap(it?: ByteArray(1)) }
             .flatMapMany { Flux.just(it) }

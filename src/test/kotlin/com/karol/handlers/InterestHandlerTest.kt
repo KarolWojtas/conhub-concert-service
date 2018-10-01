@@ -27,6 +27,7 @@ class InterestHandlerTest{
     lateinit var concertService: ConcertService
     @Mock
     lateinit var webClientService: WebClientService
+    @Mock lateinit var concertCommentHandler: ConcertCommentHandler
     @InjectMocks
     lateinit var interestHandler: InterestHandler
     val venue = Venue(id = "idVenue", name = "Venue", avatar = null)
@@ -51,8 +52,6 @@ class InterestHandlerTest{
         given(concertService.findById(ArgumentMatchers.anyString())).willReturn(Mono.just(concert1)).willReturn(concert2.toMono()).willReturn(Mono.just(concert1)).willReturn(concert2.toMono())
         val mockRequest = MockServerRequest.builder().pathVariable("username", "username").build()
 
-        StepVerifier.create(interestHandler.concertIndicesByUsernameFlux("username"))
-                .expectNext("id1", "id2").verifyComplete()
         StepVerifier.create(interestHandler.concertsByUsernameFlux("username"))
                 .expectNext(concert1, concert2).verifyComplete()
         interestHandler.findConcertsByUsernameIntrestsResponse(mockRequest).block().also {

@@ -10,10 +10,13 @@ import com.karol.handlers.InterestHandler
 import com.karol.handlers.VenueHandler
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers
 import org.mockito.BDDMockito.*
+import org.mockito.Mock
+import org.mockito.MockitoAnnotations
 import org.mockito.internal.hamcrest.HamcrestArgumentMatcher
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
@@ -45,7 +48,7 @@ class ConcertRoutesTest{
     lateinit var concertHandler: ConcertHandler
     @MockBean
     lateinit var concertCommentHandler: ConcertCommentHandler
-    @MockBean
+   @MockBean
     lateinit var interestHandler: InterestHandler
 
     val venue = Venue(id = "idVenue", name = "Venue", avatar = null)

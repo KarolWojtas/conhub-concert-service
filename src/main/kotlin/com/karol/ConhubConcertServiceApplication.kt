@@ -33,7 +33,7 @@ class Bootstrap : CommandLineRunner{
     @Autowired lateinit var venueRepository: VenueRepository
     @Autowired lateinit var commentRepository: ConcertCommentRepository
     override fun run(vararg args: String?) {
-        venueRepository.deleteAll().block()
+        /*venueRepository.deleteAll().block()
         concertRepository.deleteAll().block()
 
         
@@ -56,7 +56,7 @@ class Bootstrap : CommandLineRunner{
         val comment = ConcertComment(id = null, text = "Ten koncert jest zajebisty!", concert = concertRepository.findByName(concert1.name).block()?:concert1, timestamp = LocalDateTime.now(), username = "username")
         commentRepository.save(comment).block()
 
-
+*/
         }
 
     }

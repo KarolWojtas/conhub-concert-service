@@ -27,6 +27,7 @@ class ConcertHandlerTest{
 
     @Mock lateinit var concertService: ConcertService
     @Mock lateinit var venueService: VenueService
+    @Mock lateinit var concertCommentHandler: ConcertCommentHandler
     @InjectMocks lateinit var concertHandler: ConcertHandler
     val venue = Venue(id = "idVenue", name = "Venue", avatar = null)
     val venue2 = Venue(id = "idVenue2", name = "Venue2", avatar = null)

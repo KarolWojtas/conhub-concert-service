@@ -38,6 +38,7 @@ import java.time.LocalDateTime
 class VenueHandlerUnitTest{
     @Mock lateinit var venueService: VenueService
     @Mock lateinit var concertService: ConcertService
+    @Mock lateinit var concertCommentHandler: ConcertCommentHandler
     @InjectMocks lateinit var venueHandler: VenueHandler
     val venue = Venue(id = "idVenue", name = "Venue", avatar = null)
     val concert1 = Concert(id = "id1", name = "Concert", venue = venue, date = LocalDateTime.now())
