@@ -6,14 +6,13 @@ import com.karol.services.ConcertCommentService
 import com.karol.services.ConcertService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.body
 import org.springframework.web.server.ResponseStatusException
-import reactor.core.publisher.EmitterProcessor
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
+import reactor.core.publisher.*
 import java.time.LocalDateTime
 
 
@@ -56,14 +55,14 @@ class ConcertCommentHandler{
                 comment = this.bodyToMono(ConcertCommentDto::class.java)))
     }
     fun saveCommentMono(comment: Mono<ConcertCommentDto>, concertId: String, username: String): Mono<ConcertComment> {
-
         return concertService.findById(concertId)
                 .switchIfEmpty(Mono.error(ResponseStatusException(HttpStatus.NOT_FOUND, "Concert not found")))
-                .filterWhen { webClientService.checkUsernameAsync(username) }
+                //TODO: jak sie ogarnie to włączyć
+                //.filterWhen { webClientService.checkUsernameAsync(username) }
                 .zipWith(comment)
                 .map { ConcertComment(id = null, text = it.t2.text, timestamp = it.t2.timestamp?: LocalDateTime.now(), concert = it.t1, username = username) }
                 .flatMap(concertCommentService::saveComment)
-                .doOnNext { sseProcessor.onNext(it) }
+                .doOnSuccess { sseProcessor.onNext(it) }
                 .switchIfEmpty(Mono.error(ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Save unsuccessful")))
     }
     fun deleteCommentById(req: ServerRequest): Mono<ServerResponse> = ServerResponse.accepted().body(
@@ -71,7 +70,7 @@ class ConcertCommentHandler{
                     .filter { it.username == req.pathVariable("username") }
                     .flatMap { concertCommentService.deleteCommentById(it.id?:"") }
     )
-    fun commentsSseResponse(req: ServerRequest) = ServerResponse.ok().body(sseProcessor.share())
+    fun commentsSseResponse(req: ServerRequest) = ServerResponse.ok().contentType(MediaType.APPLICATION_STREAM_JSON).body(this.sseProcessor.share())
 
 
 }
