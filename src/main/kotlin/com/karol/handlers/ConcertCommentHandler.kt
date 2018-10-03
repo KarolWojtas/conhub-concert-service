@@ -6,8 +6,6 @@ import com.karol.services.ConcertCommentService
 import com.karol.services.ConcertService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import org.springframework.http.codec.ServerSentEvent
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
@@ -25,9 +23,10 @@ class ConcertCommentHandler{
     lateinit var concertCommentService: ConcertCommentService
     @Autowired
     lateinit var webClientService: WebClientService
+    @Autowired
+    lateinit var commentProcessor: UnicastProcessor<ConcertComment>
     val DEFAUTL_PAGE = 0L
     val DEFAULT_SIZE = 10L
-    val sseProcessor = EmitterProcessor.create<ServerSentEvent<ConcertComment>>()
 
     fun commentsByConcertFlux(page: Long?, size: Long?, by: String?, direction: String?, concertId: String): Flux<ConcertComment> =
         concertCommentService.findAllByConcertId(concertId= concertId, by = by, direction = direction)
@@ -58,11 +57,11 @@ class ConcertCommentHandler{
     fun saveCommentMono(comment: Mono<ConcertCommentDto>, concertId: String, username: String): Mono<ConcertComment> {
         return concertService.findById(concertId)
                 .switchIfEmpty(Mono.error(ResponseStatusException(HttpStatus.NOT_FOUND, "Concert not found")))
-                .filterWhen { webClientService.checkUsernameAsync(username) }
+                //.filterWhen { webClientService.checkUsernameAsync(username) }
                 .zipWith(comment)
                 .map { ConcertComment(id = null, text = it.t2.text, timestamp = it.t2.timestamp?: LocalDateTime.now(), concert = it.t1, username = username) }
                 .flatMap(concertCommentService::saveComment)
-                .doOnSuccess { sseProcessor.onNext(convertCommentToServerSentEvent(it)) }
+                .doOnSuccess { commentProcessor.onNext(it) }
                 .switchIfEmpty(Mono.error(ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Save unsuccessful")))
     }
     fun deleteCommentById(req: ServerRequest): Mono<ServerResponse> = ServerResponse.accepted().body(
@@ -70,9 +69,7 @@ class ConcertCommentHandler{
                     .filter { it.username == req.pathVariable("username") }
                     .flatMap { concertCommentService.deleteCommentById(it.id?:"") }
     )
-    fun commentsSseResponse(req: ServerRequest) = ServerResponse.ok().contentType(MediaType.TEXT_EVENT_STREAM).body(this.sseProcessor.share())
-    private fun convertCommentToServerSentEvent(comment: ConcertComment): ServerSentEvent<ConcertComment> = ServerSentEvent.builder(comment)
-            .id(comment.concert?.id?:"no-id").build()
+
 
 }
 

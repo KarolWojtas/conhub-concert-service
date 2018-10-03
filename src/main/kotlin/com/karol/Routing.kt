@@ -36,7 +36,6 @@ class ConcertVenueRouterConfig {
         "/concerts".nest {
             GET("") { findConcertsBySearchParams(it, concertHandler) }
             DELETE("/comments/{commentId}/{username}", concertCommentHandler::deleteCommentById)
-            GET("/comments-sse", concertCommentHandler::commentsSseResponse)
             "/{concertId}".nest {
                 GET("", concertHandler::findByIdResponse)
                 PATCH("", concertHandler::patchByIdResponse)
