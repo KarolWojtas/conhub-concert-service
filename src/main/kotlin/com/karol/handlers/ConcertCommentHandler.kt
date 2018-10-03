@@ -58,7 +58,7 @@ class ConcertCommentHandler{
     fun saveCommentMono(comment: Mono<ConcertCommentDto>, concertId: String, username: String): Mono<ConcertComment> {
         return concertService.findById(concertId)
                 .switchIfEmpty(Mono.error(ResponseStatusException(HttpStatus.NOT_FOUND, "Concert not found")))
-                //.filterWhen { webClientService.checkUsernameAsync(username) }
+                .filterWhen { webClientService.checkUsernameAsync(username) }
                 .zipWith(comment)
                 .map { ConcertComment(id = null, text = it.t2.text, timestamp = it.t2.timestamp?: LocalDateTime.now(), concert = it.t1, username = username) }
                 .flatMap(concertCommentService::saveComment)
@@ -71,7 +71,8 @@ class ConcertCommentHandler{
                     .flatMap { concertCommentService.deleteCommentById(it.id?:"") }
     )
     fun commentsSseResponse(req: ServerRequest) = ServerResponse.ok().contentType(MediaType.TEXT_EVENT_STREAM).body(this.sseProcessor.share())
-    private fun convertCommentToServerSentEvent(comment: ConcertComment): ServerSentEvent<ConcertComment> = ServerSentEvent.builder(comment).comment("comment").build()
+    private fun convertCommentToServerSentEvent(comment: ConcertComment): ServerSentEvent<ConcertComment> = ServerSentEvent.builder(comment)
+            .id(comment.concert?.id?:"no-id").build()
 
 }
 
