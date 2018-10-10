@@ -20,7 +20,6 @@ import org.springframework.web.server.ResponseStatusException
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.io.ByteArrayOutputStream
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Component
@@ -69,22 +68,27 @@ class InterestHandler{
 
     fun mapConcertsToPdfByteArray(concerts: Flux<Concert>, username: String): Mono<ByteArray> {
         val baos = ByteArrayOutputStream()
-        val font = FontFactory.getFont(FontFactory.HELVETICA, "Cp1250", BaseFont.EMBEDDED)
+        val regularFont = FontFactory.getFont(FontFactory.HELVETICA, "Cp1250", BaseFont.EMBEDDED)
+        val boldFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, "Cp1250", BaseFont.EMBEDDED )
         val document = Document().apply {
             addHeader("Main header", "Concerts for $username")
             PdfWriter.getInstance(this, baos)
             open()
-            add(Paragraph("Concerts liked by $username"))
+            add(Paragraph("Concerts liked by user ").apply {
+                alignment = Element.ALIGN_CENTER
+                spacingAfter = 20f
+                add(Chunk("\"$username\"", boldFont))
+            })
         }
 
         val table = PdfPTable(floatArrayOf(4f,4f,4f))
 
         return Flux.just("Concert", "Venue", "Date")
-                .map { PdfPCell().apply { backgroundColor = BaseColor.LIGHT_GRAY; borderWidth = 2f; phrase = Phrase(it, font) } }
+                .map { PdfPCell().apply { backgroundColor = BaseColor.LIGHT_GRAY; borderWidth = 2f; phrase = Phrase(it, regularFont) } }
                 .map { table.addCell(it) }
                 .switchMap { concerts }
-                .map { table.addCell(Phrase(it.name, font)); table.addCell(Phrase(it.venue.name, font));
-                    table.addCell(Phrase(it.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), font));
+                .map { table.addCell(Phrase(it.name, regularFont)); table.addCell(Phrase(it.venue.name, regularFont));
+                    table.addCell(Phrase(it.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), regularFont));
                     it }
                 .reduce(document){acc, item -> acc}
                 .map { it.add(table); it.close(); baos.use { it.toByteArray() } }

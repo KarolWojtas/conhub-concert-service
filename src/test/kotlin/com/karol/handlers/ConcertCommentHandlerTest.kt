@@ -21,6 +21,7 @@ import org.springframework.web.reactive.function.server.body
 import org.springframework.web.server.ResponseStatusException
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.publisher.UnicastProcessor
 import reactor.core.publisher.toMono
 import reactor.test.StepVerifier
 import java.net.URI
@@ -33,13 +34,17 @@ class ConcertCommentHandlerTest{
     lateinit var concertCommentService: ConcertCommentService
     @Mock
     lateinit var webClientService: WebClientService
+    val commentProcessor: UnicastProcessor<ConcertComment> = UnicastProcessor.create()
     @InjectMocks
     lateinit var concertCommentHandler: ConcertCommentHandler
     val concert1 = Concert(id = "idC", name = "concert1", date = LocalDateTime.now().plusDays(1L), venue = Venue(id = "idV", name = "Venue", avatar = null))
     val comment1 = ConcertComment(id = "idCom", timestamp = LocalDateTime.now(), concert = concert1, text = "text", username = "username")
     val comment2 = ConcertComment(id = "idCom2", timestamp = LocalDateTime.now(), concert = concert1, text = "text2", username = "username")
     @BeforeEach
-    fun beforeEach() = MockitoAnnotations.initMocks(this)
+    fun beforeEach(){
+        MockitoAnnotations.initMocks(this)
+        concertCommentHandler.commentProcessor = this.commentProcessor
+    }
 
     @Test
     fun `should page concerts`(){
